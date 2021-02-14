@@ -1,35 +1,50 @@
 import os
-import time
 
 from googletrans import Translator
 
 
 def google_translate(message):
     translator = Translator()
-    lang = translator.detect(message)
-    # print(lang.lang, lang.confidence)
-
-    if lang.lang == 'ru':
-        dest_lang = 'en'
-    else:
-        dest_lang = 'ru'
-
-    result = translator.translate(message, dest=dest_lang)
-
-    # result.src - исходный язык сообщения
-    # result.dest - язык назначения
-    # result.origin - оригинальное сообщение
-    # result.text - переведенное сообщение
-    # result.pronunciation - транслитерация переведенного сообщения
-
-    return result.text
+    translations = translator.translate(message, dest="en")
+    return translations.text
 
 
 def is_russian(input_string):
-    russian_abc = ['а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и',
-                   'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т',
-                   'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь',
-                   'э', 'ю', 'я']
+    russian_abc = [
+        "а",
+        "б",
+        "в",
+        "г",
+        "д",
+        "е",
+        "ё",
+        "ж",
+        "з",
+        "и",
+        "й",
+        "к",
+        "л",
+        "м",
+        "н",
+        "о",
+        "п",
+        "р",
+        "с",
+        "т",
+        "у",
+        "ф",
+        "х",
+        "ц",
+        "ч",
+        "ш",
+        "щ",
+        "ъ",
+        "ы",
+        "ь",
+        "э",
+        "ю",
+        "я",
+    ]
 
     for char in input_string:
         if char.lower() in russian_abc:
@@ -37,45 +52,116 @@ def is_russian(input_string):
 
 
 def delete_unwanted_characters(input_string):
-    unwanted_characters = ['!', '@', '#', '$', '%', '^', '&', '(', ')', '+',
-                           '=', '-']
+    unwanted_characters = [
+        "!",
+        "@",
+        "#",
+        "$",
+        "%",
+        "^",
+        "&",
+        "+",
+        "=",
+        "-",
+        ".",
+        "(",
+        ")",
+    ]
+
+    new_string = ""
 
     for char in input_string:
-        if char in unwanted_characters:
-            input_string.replace(char, '')
+        if char not in unwanted_characters:
+            new_string += char
+
+    return new_string
 
 
-def file_rename(old_filename, new_filename, directory, file_extension):
-    old_full_filename = old_filename + '.' + file_extension
-    old_path = os.path.join(directory, old_full_filename)
-    new_full_filename = new_filename + '.' + file_extension
-    new_path = os.path.join(directory, new_full_filename)
-    os.rename(old_path, new_path)
+def file_rename(new_filenames_dict, directory):
+
+    for key, values in new_filenames_dict.items():
+        old_filename = key
+        new_filename = values[0]
+        file_extension = values[1]
+        old_path = os.path.join(directory, old_filename)
+        new_full_filename = new_filename + "." + file_extension
+        new_path = os.path.join(directory, new_full_filename)
+        os.rename(old_path, new_path)
+
+
+def get_extension(filename):
+    extension = ""
+    for char in filename[::-1]:
+        if char != ".":
+            extension += char
+        else:
+            return extension[::-1]
+
+
+def system_path_validator(path):
+    path_exists = os.path.exists(path)
+
+    while path_exists is False:
+        print("Такого пути не существует, введите корректный путь:")
+        path = input()
+        path_exists = os.path.exists(path)
+
+    return path
+
+
+def answer_validator():
+    while True:
+        answer = input()
+        if answer == "n":
+            return False
+        if answer == "y":
+            return True
+        else:
+            print("Для ответа нажмите на клавиатуре 'y'(yes) или 'n'(no)")
+            continue
+
+
+def translate_example(input_path):
+    files = os.listdir(input_path)
+
+    filenames_dict = {}
+
+    for file in files:
+        if os.path.isfile(os.path.join(input_path, file)):
+
+            file_extension = get_extension(file)
+            filename = file[: -(len(file_extension) + 1)]
+
+            if is_russian(filename):
+                old_filename = filename
+                filename = delete_unwanted_characters(filename)
+                translate_words = google_translate(filename).split()
+                new_filename = "_".join(translate_words).lower()
+                filenames_dict[old_filename + "." + file_extension] = [
+                    new_filename,
+                    file_extension,
+                ]
+
+    return filenames_dict
 
 
 def main():
-    current_directory = os.getcwd()
-    files = os.listdir(current_directory)
+    print("Введите путь к директории, где будут переименованы файлы:")
+    current_directory = system_path_validator(input())
 
-    for file in files:
-        filename, file_extension = file.split('.')
+    new_filenames_dict = translate_example(current_directory)
 
-        if is_russian(filename) and not os.path.basename(__file__):
+    print("Файлы в папке будут переименованы следующим образом:")
+    for key, values in new_filenames_dict.items():
+        print(key, "->", values[0] + "." + values[1])
 
-            filename_words = filename.split()
-            translate_words = []
+    print("Желаете продолжить?(y/n)")
 
-            for word in filename_words:
-                translate_words.append(google_translate(word))
-                time.sleep(0.2)
-
-            delete_unwanted_characters(filename)
-
-            new_filename = '_'.join(translate_words).lower()
-
-            file_rename(filename, new_filename,
-                        current_directory, file_extension)
+    if answer_validator():
+        file_rename(new_filenames_dict, current_directory)
+    else:
+        exit()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -1,0 +1,1 @@
+venv\Scripts\activate & python translate_filename_to_english.py
