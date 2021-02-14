@@ -8,7 +8,7 @@ The script uses the googletrans library, and its operation depends entirely on i
 # Install
 0. Download repository `git clone <repository_url>`
 1. Create a new virtual environment in the local repository folder `python -m venv venv`
-2. Activate virtual environment `venv\Scripts\activate` and install requirements `pip install requirements.txt`
+2. Activate virtual environment `venv\Scripts\activate` and install requirements `pip install -r requirements.txt`
 3. Run the script by double-clicking on `translate_filename_to_english.bat` or run cmd.exe in your repository folder, activate the virtual environment and run the python script `python translate_filename_to_english.py`.
 
 # How to use?
@@ -24,7 +24,7 @@ possible translation result, but the files in the folder still won't be translat
 # Установка
 0. Скачайте репозиторий `git clone <repository_url>`
 1. Создайте новое виртуальное окружение в папке локального репозитория `python-m venv venv`
-2. Активируйте виртуальное окружение `venv\Scripts\activate` и установите зависимости `pip install requirements.txt`
+2. Активируйте виртуальное окружение `venv\Scripts\activate` и установите зависимости `pip install -r requirements.txt`
 3. Запустите скрипт двойным нажатием на translate_filename_to_english.bat или запустите cmd.exe в папке вашего репозитория, активируйте виртуальную среду и запустите скрипт python `python translate_filename_to_english.py`.
 
 # Как использовать?
